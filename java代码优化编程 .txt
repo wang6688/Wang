@@ -34,4 +34,4 @@
       所以在for中还是调用了 　　在第二个循环for(Entry entry : paraMap.entrySet())中使用的 Iterator是如下的一个内部类 　　private class EntryIterator extends HashIterator 
 
 Create a new brach is quick and simple.
-modify the file by wqg.
+modify the file by wqg on linux.
