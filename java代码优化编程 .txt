@@ -32,3 +32,9 @@
   25、不要将数组声明为：public static final 。 
   26、HashMap的遍历效率讨论 　　经常遇到对HashMap中的key和value值对的遍历操作，有如下两种方法：Map<="" p="" style="word-wrap: break-word;"> []> paraMap = new HashMap(); 　　................//第一个循环 　　Set appFieldDefIds = paraMap.keySet(); 　　for (String appFieldDefId : appFieldDefIds) { 　　String[] values = paraMap.get(appFieldDefId); 　　...... 　　} 　　//第二个循环 　　for(Entry entry : paraMap.entrySet()){ 　　String appFieldDefId = entry.getKey(); 　　String[] values = entry.getValue(); 　　....... 　　} 　　第一种实现明显的效率不如第二种实现。 　　分析如下 Set appFieldDefIds = paraMap.keySet(); 是先从HashMap中取得keySet 　　代码如下： 　　public Set keySet() { 　　Set ks = keySet; 　　return (ks != null ? ks : (keySet = new KeySet())); 　　} 　　private class KeySet extends AbstractSet { 　　public Iterator iterator() { 　　return newKeyIterator(); 　　} 　　public int size() { 　　return size; 　　} 　　public boolean contains(Object o) { 　　return containsKey(o); 　　} 　　public boolean remove(Object o) { 　　return HashMap.this.removeEntryForKey(o) != null; 　　} 　　public void clear() { 　　HashMap.this.clear(); 　　} 　　} 　　其实就是返回一个私有类KeySet, 它是从AbstractSet继承而来，实现了Set接口。 　　再来看看for/in循环的语法 　　for(declaration : expression) 　　statement 　　在执行阶段被翻译成如下各式 　　for(Iterator #i = (expression).iterator(); #i.hashNext();){ 　　declaration = #i.next(); 　　statement 　　}因此在第一个for语句for (String appFieldDefId : appFieldDefIds) 中调用了 HashMap.keySet().iterator() 而这个方法调用了newKeyIterator() 　　Iterator newKeyIterator() { 　　return new KeyIterator(); 　　} 　　private class KeyIterator extends HashIterator { 　　public K next() { 　　return nextEntry().getKey(); 　　} 　　} 
       所以在for中还是调用了 　　在第二个循环for(Entry entry : paraMap.entrySet())中使用的 Iterator是如下的一个内部类 　　private class EntryIterator extends HashIterator 
+
+
+
+Create a new brach is quick.
+
+
